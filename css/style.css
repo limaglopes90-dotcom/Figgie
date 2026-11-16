@@ -1,0 +1,162 @@
+/* ===== FIGGIE-OS — terminal antigo (monitor CRT) ===== */
+:root { --term-font: "VT323", "IBM Plex Mono", "Courier New", monospace; }
+:root { --fg: #ffb000; --fg-dim: #a87400; --fg-hi: #ffe2a3; --bg: #0b0700; --glow: rgba(255,176,0,.5); }
+
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: #000; }
+body { color: var(--fg); font: 22px/1.35 var(--term-font); overflow: hidden; }
+[hidden] { display: none !important; }
+::selection { background: var(--fg); color: var(--bg); }
+
+/* ---- Monitor ---- */
+#crt {
+  position: fixed; inset: 0;
+  display: flex; flex-direction: column;
+  background: radial-gradient(ellipse at center, color-mix(in srgb, var(--bg) 80%, var(--fg) 4%) 0%, var(--bg) 70%, #000 100%);
+  text-shadow: 0 0 2px var(--glow), 0 0 8px var(--glow);
+  animation: flicker 6s infinite steps(1);
+}
+#crt::before { /* linhas de varredura */
+  content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 5;
+  background: repeating-linear-gradient(0deg, rgba(0,0,0,.28) 0 1px, transparent 1px 3px);
+}
+#crt::after { /* vinheta + curvatura */
+  content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 6;
+  box-shadow: inset 0 0 120px rgba(0,0,0,.85), inset 0 0 18px rgba(0,0,0,.9);
+}
+@keyframes flicker { 0%, 100% { opacity: 1; } 47% { opacity: .97; } 48% { opacity: 1; } 83% { opacity: .985; } }
+@media (prefers-reduced-motion: reduce) { #crt { animation: none; } #cursor { animation: none !important; } }
+
+/* ---- Barra de status (topo) ---- */
+#statusbar {
+  display: flex; justify-content: space-between; gap: 12px;
+  padding: 4px 18px; background: var(--fg); color: var(--bg); text-shadow: none;
+  white-space: nowrap; overflow: hidden;
+}
+#where { overflow: hidden; text-overflow: ellipsis; }
+
+/* ---- Tela ---- */
+#screen {
+  flex: 1; overflow-y: auto; overflow-x: hidden;
+  padding: 18px max(18px, calc((100% - 92ch) / 2)) 10px;
+  scrollbar-color: var(--fg-dim) transparent;
+}
+#output { white-space: normal; word-wrap: break-word; }
+#output .line { white-space: pre-wrap; min-height: 1.35em; }
+#output .dim { color: var(--fg-dim); }
+#output .hi { color: var(--fg-hi); }
+#output .err { color: var(--fg-hi); }
+#output .echo { color: var(--fg-hi); margin-top: 14px; }
+#output pre.ascii { margin: 0; font: inherit; line-height: 1.05; white-space: pre; overflow-x: auto; }
+#output hr { border: 0; border-top: 1px dashed var(--fg-dim); margin: 14px 0; }
+
+a, .cmd-link {
+  color: var(--fg-hi); text-decoration: underline; text-underline-offset: 3px;
+  background: none; border: 0; padding: 0; font: inherit; cursor: pointer; text-shadow: inherit;
+}
+a:hover, a:focus-visible, .cmd-link:hover, .cmd-link:focus-visible {
+  background: var(--fg); color: var(--bg); text-decoration: none; outline: none; text-shadow: none;
+}
+.ref { color: var(--fg-dim); }
+
+/* ---- Prompt ---- */
+#prompt-line { display: flex; gap: .5ch; margin-top: 10px; align-items: baseline; }
+#ps1 { white-space: nowrap; color: var(--fg-hi); }
+#cmd-wrap { position: relative; flex: 1; min-width: 0; display: flex; }
+#cmd {
+  position: absolute; inset: 0; width: 100%;
+  background: transparent; border: 0; outline: none; color: transparent; caret-color: transparent;
+  font: inherit; padding: 0;
+}
+#mirror { white-space: pre; color: var(--fg); overflow: hidden; }
+#cursor { animation: blink 1.05s steps(1) infinite; }
+#prompt-line.busy { visibility: hidden; }
+@keyframes blink { 50% { opacity: 0; } }
+
+/* ---- Barra de comandos rápidos ---- */
+#quickbar {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 14px;
+  padding: 6px 12px; border-top: 1px solid var(--fg-dim);
+}
+#quickbar button {
+  background: none; border: 0; color: var(--fg); font: inherit; cursor: pointer; padding: 0 4px; text-shadow: inherit;
+}
+#quickbar button:hover, #quickbar button:focus-visible { background: var(--fg); color: var(--bg); outline: none; text-shadow: none; }
+
+#credit { text-align: center; padding: 2px 12px 8px; font-size: 18px; color: var(--fg-dim); }
+#credit a { color: var(--fg); }
+
+/* ---- Leitura de post (muito espaço para texto) ---- */
+.post { max-width: 80ch; margin: 0 auto; }
+.post h1 { font-size: 1.9em; font-weight: normal; line-height: 1.1; margin: 6px 0 4px; color: var(--fg-hi); text-transform: uppercase; letter-spacing: 1px; }
+.post h2 { font-size: 1.45em; font-weight: normal; margin: 26px 0 6px; color: var(--fg-hi); }
+.post h2::before { content: "> "; color: var(--fg-dim); }
+.post h3 { font-size: 1.2em; font-weight: normal; margin: 20px 0 6px; color: var(--fg-hi); }
+.post h3::before { content: ">> "; color: var(--fg-dim); }
+.post h4 { font-size: 1.05em; font-weight: normal; margin: 16px 0 4px; }
+.post p { margin: 0 0 14px; line-height: 1.45; }
+.post ul, .post ol { margin: 0 0 14px; padding-left: 3ch; }
+.post ul { list-style: none; }
+.post ul > li::before { content: "* "; margin-left: -2ch; color: var(--fg-dim); }
+.post li { margin-bottom: 4px; }
+.post strong { color: var(--fg-hi); font-weight: normal; text-decoration: underline; text-decoration-style: double; text-underline-offset: 3px; }
+.post em { font-style: normal; color: var(--fg-hi); }
+.post em::before, .post em::after { content: "_"; color: var(--fg-dim); }
+.post del { color: var(--fg-dim); }
+.post code { color: var(--fg-hi); font: inherit; }
+.post code::before, .post code::after { content: "`"; color: var(--fg-dim); }
+.post pre code::before, .post pre code::after { content: none; }
+.post pre { border: 1px dashed var(--fg-dim); padding: 8px 12px; overflow-x: auto; margin: 0 0 14px; font: inherit; }
+.post blockquote { margin: 0 0 14px; padding-left: 2ch; border-left: 2px solid var(--fg-dim); color: var(--fg-hi); }
+.post hr { border: 0; margin: 18px 0; height: 1.35em; }
+.post hr::after { content: "- - - - - - - - - - - - - - - - - - - -"; color: var(--fg-dim); }
+.meta { color: var(--fg-dim); margin-bottom: 14px; }
+.tag { color: var(--fg); }
+
+/* imagens com "filtro de fósforo" */
+.post figure { margin: 18px 0; }
+.post figure .frame { border: 1px solid var(--fg-dim); padding: 6px; display: block; cursor: zoom-in; background: none; width: 100%; }
+.post figure img {
+  display: block; width: 100%; height: auto; max-height: 70vh; object-fit: contain;
+  filter: grayscale(1) contrast(1.1);
+}
+.post figure .tint { position: relative; display: block; }
+.post figure .tint::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: var(--fg); mix-blend-mode: multiply;
+}
+.post figcaption { color: var(--fg-dim); margin-top: 4px; }
+.post figcaption::before { content: "[IMG] "; }
+.cover { margin-top: 4px; }
+
+/* lista de posts */
+.post-list { list-style: none; padding: 0; margin: 8px 0 0; }
+.post-list li { padding: 8px 0; border-bottom: 1px dashed color-mix(in srgb, var(--fg-dim) 60%, transparent); }
+.post-list .num { color: var(--fg-dim); }
+.post-list .excerpt { color: var(--fg-dim); display: block; padding-left: 5ch; }
+.post-nav { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 20px; margin-top: 22px; }
+.refs { margin-top: 20px; color: var(--fg-dim); }
+.refs li { word-break: break-all; }
+
+/* ---- Visualizador de imagem ---- */
+#viewer {
+  position: fixed; inset: 0; z-index: 50; background: rgba(0,0,0,.92);
+  display: grid; place-items: center; padding: 16px;
+}
+.viewer-box { border: 1px solid var(--fg); background: var(--bg); padding: 10px; max-width: 96vw; max-height: 94vh; display: flex; flex-direction: column; gap: 6px; text-shadow: 0 0 6px var(--glow); }
+.viewer-head { display: flex; justify-content: space-between; gap: 20px; }
+.viewer-head button { background: none; border: 0; color: var(--fg); font: inherit; cursor: pointer; }
+.viewer-head button:hover { background: var(--fg); color: var(--bg); }
+#viewer-img { max-width: 100%; max-height: 78vh; object-fit: contain; }
+#viewer-cap { color: var(--fg-dim); }
+
+/* ---- Celular ---- */
+@media (max-width: 640px) {
+  body { font-size: 19px; }
+  #screen { padding: 12px 12px 8px; }
+  #statusbar { padding: 3px 10px; }
+  #where { display: none; }
+  #quickbar { gap: 2px 8px; font-size: 17px; }
+  .post-list .excerpt { padding-left: 0; }
+  #credit { font-size: 15px; }
+}

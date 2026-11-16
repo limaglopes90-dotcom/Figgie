@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>FIGGIE-OS — Blog</title>
+  <meta name="description" content="Figgie — um blog num terminal antigo.">
+  <meta name="theme-color" content="#0b0700">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect width='16' height='16' rx='2' fill='%230b0700'/><text x='2' y='12' font-family='monospace' font-size='11' fill='%23ffb000'>&gt;_</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=VT323&display=swap">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="crt">
+    <header id="statusbar">
+      <span>FIGGIE-OS v1.0</span>
+      <span id="where">C:\BLOG</span>
+      <time id="clock"></time>
+    </header>
+
+    <main id="screen" aria-live="polite">
+      <div id="output"></div>
+      <form id="prompt-line" autocomplete="off">
+        <label for="cmd" id="ps1">C:\BLOG&gt;</label>
+        <span id="cmd-wrap">
+          <input id="cmd" name="cmd" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="Digite um comando">
+          <span id="mirror" aria-hidden="true"></span><span id="cursor" aria-hidden="true">█</span>
+        </span>
+      </form>
+    </main>
+
+    <nav id="quickbar" aria-label="Comandos rápidos">
+      <button data-cmd="inicio">[F1] Início</button>
+      <button data-cmd="posts">[F2] Posts</button>
+      <button data-cmd="buscar">[F3] Buscar</button>
+      <button data-cmd="links">[F4] Links</button>
+      <button data-cmd="sobre">[F5] Sobre</button>
+      <button data-cmd="ajuda">[F6] Ajuda</button>
+    </nav>
+
+    <footer id="credit">
+      Desenvolvido por Júlia Quoos — <a href="https://juliaroberta.com" target="_blank" rel="noopener">juliaroberta.com</a>
+    </footer>
+  </div>
+
+  <!-- visualizador de imagem -->
+  <div id="viewer" hidden role="dialog" aria-label="Imagem">
+    <div class="viewer-box">
+      <div class="viewer-head"><span id="viewer-name"></span><button id="viewer-close">[ESC] fechar</button></div>
+      <img id="viewer-img" alt="">
+      <div id="viewer-cap"></div>
+    </div>
+  </div>
+
+  <script src="posts/posts.js"></script>
+  <script src="js/terminal.js"></script>
+</body>
+</html>
